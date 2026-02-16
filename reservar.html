@@ -334,8 +334,8 @@
         <a href="index.html" class="back-link">← Volver a inicio</a>
         
         <header>
-            <h1>Agendar Intensivo</h1>
-            <p>Completa el formulario para reservar tus sesiones</p>
+            <h1>Agendar Intensivo con Becky</h1>
+            <p>Ciudad de México | Completa el formulario para reservar tus sesiones</p>
         </header>
 
         <div class="form-container">
@@ -347,6 +347,8 @@
                 <div class="option-cards">
                     <div class="option-card" onclick="selectIntensive('3days')">
                         <h3>Intensivo de 3 Días</h3>
+                        <p style="font-size: 1.5em; color: #1a1a1a; margin: 15px 0;"><strong>$4,800 MXN</strong></p>
+                        <p style="color: #666; margin-bottom: 15px;">$800 por sesión</p>
                         <p><strong>6 sesiones totales</strong></p>
                         <ul>
                             <li>2 sesiones de 30 minutos por día</li>
@@ -358,6 +360,8 @@
                     
                     <div class="option-card" onclick="selectIntensive('5days')">
                         <h3>Intensivo de 5 Días</h3>
+                        <p style="font-size: 1.5em; color: #1a1a1a; margin: 15px 0;"><strong>$4,000 MXN</strong></p>
+                        <p style="color: #666; margin-bottom: 15px;">$800 por sesión</p>
                         <p><strong>5 sesiones totales</strong></p>
                         <ul>
                             <li>1 sesión de 30 minutos por día</li>
@@ -455,7 +459,8 @@
         // ============================================
         // CONFIGURACIÓN - IMPORTANTE: ACTUALIZAR ESTA URL
         // ============================================
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxx3CULONWES6W3oxnDD_wMTqgnXJFgsGDBTyg_h7XLRuKKShIL57CU--rGUI1oTao0ow/exec'
+        const GOOGLE_APPS_SCRIPT_URL = 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI';
+        // Ejemplo: 'https://script.google.com/macros/s/ABC123.../exec'
         
         // Estado de la aplicación
         let state = {
@@ -898,15 +903,18 @@
                 if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL !== 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI') {
                     const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                         method: 'POST',
-                        mode: 'no-cors',
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Content-Type': 'text/plain',
                         },
                         body: JSON.stringify(bookingData)
                     });
                     
-                    // Note: con no-cors no podemos leer la respuesta, pero el evento se crea
-                    console.log('Booking sent to Google Calendar');
+                    const result = await response.json();
+                    console.log('Google Apps Script response:', result);
+                    
+                    if (!result.success) {
+                        throw new Error(result.message || 'Error al crear la reserva');
+                    }
                 } else {
                     console.warn('Google Apps Script URL not configured - booking not sent to calendar');
                 }
@@ -920,7 +928,7 @@
                 
             } catch (error) {
                 console.error('Error confirming booking:', error);
-                alert('Hubo un error al confirmar la reserva. Por favor contacta directamente.');
+                alert('Hubo un error al confirmar la reserva: ' + error.message + '\n\nPor favor contacta directamente.');
                 confirmButton.textContent = 'Confirmar Reserva';
                 confirmButton.disabled = false;
             }
